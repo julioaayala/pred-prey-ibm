@@ -2,7 +2,8 @@ classdef Population
     properties
         individuals
         type
-        aik
+        trait_values
+        attack_rate
     end
     methods
         % Constructor
@@ -32,7 +33,6 @@ classdef Population
         end
         function abundances = get_abundances(obj, trait)
             pop = [obj.individuals];
-            disp(pop);
             hab_list = [pop.habitat];
             if trait=="alpha"
                 trait_list = [pop.alpha];
@@ -40,29 +40,35 @@ classdef Population
                 trait_list = [pop.beta];
             end 
             abundances = zeros(max(hab_list),max(trait_list));
-            disp(trait_list);
             for i=1:max(hab_list)
                 for j=1:max(trait_list)
                     abundances(i,j) = nnz(hab_list==i & trait_list==j);
                 end
             end
         end
-        function eq_abundances = get_eq_abundance_prey(obj, abundances, F)
-            eq_abundances = zeros(size(abundances));
-            cellarr = {obj.individuals.a_k};
-            a_k_matrix = cat(3,cellarr{:});
-            for i=1:height(abundances)
-                for j=1:height(abundances)
-                    eq_abundances(i,j) = abundances(i,j)/(1+sum(a_k_matrix(i,j,:)/F));
-                end
-            end
-        end
-
         function sum_ak = sum_ak(obj)
             prey_pop = [obj.individuals];
             cellarr = {prey_pop.a_k};
             a_k_matrix = cat(3,cellarr{:});
             sum_ak = sum(a_k_matrix,3);
+        end
+        function trait_freq = update_trait_freq(obj)
+            alpha = [obj.individuals.alpha];
+            unique_vals = unique(alpha);
+            trait_freq = containers.Map('KeyType','double','ValueType','double');
+            for i=1:length(unique_vals)
+                trait_freq(unique_vals(i)) = length(find(alpha==unique_vals(i)));
+            end
+        end
+        function attack_rate = update_attack_rate(obj)
+          if ~isempty(obj.individuals)
+            attack_rate = zeros(length(obj.individuals), length(obj.individuals(1).a_k));
+            for i=1:length(obj.individuals)
+              attack_rate(i,:) = obj.individuals(i).a_k;
+            end
+          else
+            attack_rate = zeros(1,1);
+          end
         end
     end
 end

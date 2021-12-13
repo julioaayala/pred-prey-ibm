@@ -1,25 +1,24 @@
 classdef Predator < Individual
     properties
-        g = 0.4; % Conversion factor
+        g; % Conversion factor
     end
     methods
-        function aik = consumption(obj, prey_abundance)
+        function aik = consumption(obj, prey_trait, num_habitats)
             % a/K -> max attack rate per resource density unit
             % a consumer i specialized on resource/prey k has a_i = k
             % sigma -> niche width
-            aik = zeros(height(prey_abundance),width(prey_abundance));
-            for i=1:height(prey_abundance)
-                if i==obj.habitat 
-                    % Only assign consumption to habitat the ind. is in
-                    for j=1:length(prey_abundance(i,:))
-                        aik(i,j) = (obj.a_0/prey_abundance(i,j))*exp(-((obj.alpha-j)^2)/(2*obj.sigma_alpha^2));
+            aik = zeros(num_habitats, length(prey_trait));
+            for h=1:num_habitats
+                if h==obj.habitat
+                    for i=1:length(prey_trait)
+                        aik(h,i) = obj.a_0*exp(-((obj.alpha-prey_trait(i))^2)/(2*obj.sigma_alpha^2));
                     end
                 end
             end
         end
-        function fi_alpha = calc_fitness_alpha(obj, prey_abundances)
+        function fi_alpha = calc_fitness_alpha(obj, bmax)
             % Model A
-            fi_alpha = obj.g * sum(obj.a_k.*prey_abundances(obj.habitat,:));
+            fi_alpha = obj.g * bmax * sum(obj.a_k);
         end
     end
 end
