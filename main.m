@@ -1,6 +1,6 @@
 function main(varargin)
     %Parameters
-    t_end = 200;
+    t_end = 100;
     F = 2; % Fecundity rate
     K = 1000; % Carrying capacity
     P_dispersal = 0; % Probability of dispersal
@@ -9,7 +9,7 @@ function main(varargin)
     a_0N = 2; % Base attack rate
     a_0P = 0.002; % Base attack rate
     N0N = 500;
-    N0P = 200;
+    N0P = 350;
     bmax = 1;
     g = 0.8;
     sigma_alpha = 0.7; % Resource niche width
@@ -71,28 +71,28 @@ function main(varargin)
         tmp = "Hab " + i + "; Res " + string(1:num_resources);
         legendStr = union(legendStr, tmp);
     end
-    subplot(2,1,1);
+    %subplot(2,1,1);
     colors = ["#0072BD", "#D95319", "#EDB120", "#7E2F8E", "#77AC30", "#4DBEEE", "#A2142F", "#80B3FF"];
     for i=1:(num_populations+(num_resources*num_habitats))
-        h(i) = animatedline("Color", colors(i));
+        h(i) = animatedline("Color", colors(i), "Linewidth",1.5);
     end
     legend(legendStr);
     xlabel("t");
-    ylabel("abundance");
-    hold on
-    subplot(2,2,3);
-    for i=1:num_populations
-        h2(i) = animatedline("Color", colors(i), 'Marker','*', 'LineStyle','none');
-    end
-    xlabel("t");
-    ylabel("trait value");
-
-    hold on
-    subplot(2,2,4);
-    h3 = animatedline("Color", colors(5), 'Marker','diamond', 'LineStyle','none');
-    xlabel("Trait");
     ylabel("Abundance");
-    hold off;
+%     hold on
+%     subplot(2,2,3);
+%     for i=1:num_populations
+%         h2(i) = animatedline("Color", colors(i), 'Marker','*', 'LineStyle','none');
+%     end
+%     xlabel("t");
+%     ylabel("trait value");
+% 
+%     hold on
+%     subplot(2,2,4);
+%     h3 = animatedline("Color", colors(5), 'Marker','diamond', 'LineStyle','none');
+%     xlabel("Trait");
+%     ylabel("Abundance");
+%     hold off;
 
     %Iterate for each timestep
     % Run simulation
@@ -222,11 +222,11 @@ function main(varargin)
         end
         for p=1:num_populations
            trait_values = trait_frequency{t,p};
-           addpoints(h2(p),repelem(t,length(trait_values)),trait_values);
+%            addpoints(h2(p),repelem(t,length(trait_values)),trait_values);
         end
 
         trait_values = trait_frequency{t,:};
-        clearpoints(h3);
+        %clearpoints(h3);
         %addpoints(h3,trait_values(1,:),trait_values(2,:));
         %addpoints(h3,trait_values(1,trait_values(2,:)>50),trait_values(2,trait_values(2,:)>50));
         drawnow;
