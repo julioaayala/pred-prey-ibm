@@ -1,17 +1,17 @@
 function main(varargin)
     %Parameters
-    t_end = 100;
+    t_end = 1000;
     F = 2; % Fecundity rate
-    K = 1000; % Carrying capacity
+    K = 500; % Carrying capacity
     P_dispersal = 0; % Probability of dispersal
     P_mutate = 0; % Probability of dispersal
     delta_mut = 0.4; % Mutation delta
-    a_0N = 2; % Base attack rate
-    a_0P = 0.002; % Base attack rate
-    N0N = 500;
-    N0P = 350;
+    a_0N = 3; % Base attack rate
+    a_0P = 0.008; % Base attack rate
+    N0N = 100;
+    N0P = 5;
     bmax = 1;
-    g = 0.8;
+    g = 0.5;
     sigma_alpha = 0.7; % Resource niche width
     sigma_beta = 0.7; % Habitat niche width
     sigma_gamma = 0.7; % Predator trait niche width
