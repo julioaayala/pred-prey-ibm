@@ -1,28 +1,29 @@
 function main_prey_pred(varargin)
     %Parameters
-    t_end = 4000;
+    t_end = 500;
     F = 2; % Fecundity rate
-    K = 200; % Carrying capacity
+    K = 300; % Carrying capacity
     P_dispersal = 0; % Probability of dispersal
-    P_mutate = 0; % Probability of mutation
+    p_mut = 0; % Probability of mutation
+    p_mut_pred= 0;
     delta_mut = 0.2; % Mutation delta
     N0N = 100;
     N0P = 10;
     bmax = 1;
+    sigma_alpha = 0.5; % Resource niche width
+    sigma_gamma = 0.5; % Predator trait niche width
+    a_0N = 2; % Base attack rate
+    a_0P = 0.05; % Base attack rate
+    g = 0.5;
+    morphs = 3;
     if ~isempty(varargin)
         sigma_alpha = varargin{1};
         sigma_gamma = varargin{2};
-        a_0N = varargin{3}; % Base attack rate prey
-        a_0P = varargin{4}; % Base attack rate pred
-        g = varargin{5};
-        morphs = varargin{6};
-    else
-        sigma_alpha = 0.5; % Resource niche width
-        sigma_gamma = 0.5; % Predator trait niche width
-        a_0N = 2; % Base attack rate
-        a_0P = 0.008; % Base attack rate
-        g = 0.5;
-        morphs = 1;
+        a_0P = varargin{3}; % Base attack rate pred
+        g = varargin{4};
+        morphs = varargin{5};
+        p_mut= varargin{6};
+        p_mut_pred= varargin{7};
     end
     sigma_beta = 0.5; % Habitat niche width
     num_resources = 3;
@@ -114,9 +115,10 @@ function main_prey_pred(varargin)
 %     hold off;
 
 % Initialize file
-    preyfile = strcat('prey_sigmaalpha_',num2str(sigma_alpha),'.csv');
-    preyfile_traits = fopen(preyfile, 'w');
-    outfile = strcat('Results/prey_sigmaalpha_',num2str(sigma_alpha), 'pred_sigmagamma_',num2str(sigma_alpha),'_g_',num2str(g),'_attack_',num2str(a_0P), '_',datestr(datetime('now'), 'yymmddHHMMSS'),'.csv');
+    outfile = strcat('Results/prey_sigmaalpha_',num2str(sigma_alpha), '_pmut_',num2str(p_mut), ...
+        '_pred_sigmagamma_',num2str(sigma_alpha),'_attack_',num2str(a_0P), ...
+        '_g_',num2str(g),'_pmutpred_',num2str(p_mut_pred),'_morphsinit_',num2str(morphs),'_',datestr(datetime('now'), 'yymmddHHMMSS'),'.csv');
+    disp(outfile);
     outfile_traits = fopen(outfile, 'w');
 
     %Iterate for each timestep
@@ -134,11 +136,11 @@ function main_prey_pred(varargin)
                 end
                 for j=1:length(trait_keys)
                     if mod(i,2)==1 % Prey file
-                        fprintf('%d\t%.3f\t%d\tprey\n', t, trait_keys{j}, trait_val{j});
-                        %fprintf(outfile_traits,'%d\t%.3f\t%d\tprey\n', t, trait_keys{j}, trait_val{j});
+                        %fprintf('%d\t%.3f\t%d\tprey\n', t, trait_keys{j}, trait_val{j});
+                        fprintf(outfile_traits,'%d\t%.3f\t%d\tprey\n', t, trait_keys{j}, trait_val{j});
                     else
-                        fprintf('%d\t%.3f\t%d\tpred\n', t, trait_keys{j}, trait_val{j});
-                        %fprintf(outfile_traits,'%d\t%.3f\t%d\tpred\n', t, trait_keys{j}, trait_val{j});
+                        %fprintf('%d\t%.3f\t%d\tpred\n', t, trait_keys{j}, trait_val{j});
+                        fprintf(outfile_traits,'%d\t%.3f\t%d\tpred\n', t, trait_keys{j}, trait_val{j});
                     end
                 end
             end
@@ -200,7 +202,7 @@ function main_prey_pred(varargin)
               for j=1:F % Create for every offspring
                   offspring = copy(population(p).individuals(i));
                   %% Mutate
-                  if P_mutate >= rand()
+                  if p_mut >= rand()
                     if rand()>0 %%Mutate only resource trait
                         offspring.alpha = offspring.mutate_alpha(delta_mut);
                     else
