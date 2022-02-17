@@ -2,7 +2,7 @@ function main_prey(varargin)
     %Parameters
     t_end = 4000;
     F = 2; % Fecundity rate
-    K = 200; % Carrying capacity
+    K = 300; % Carrying capacity
     P_dispersal = 0; % Probability of dispersal
     P_mutate = 1e-4; % Probability of mutation
     delta_mut = 0.2; % Mutation delta
