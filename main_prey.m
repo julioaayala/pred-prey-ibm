@@ -1,23 +1,28 @@
-function main(varargin)
+function main_prey(varargin)
     %Parameters
     t_end = 4000;
     F = 2; % Fecundity rate
     K = 200; % Carrying capacity
     P_dispersal = 0; % Probability of dispersal
     P_mutate = 1e-4; % Probability of mutation
-    delta_mut = 0.1; % Mutation delta
+    delta_mut = 0.2; % Mutation delta
+    N0N = 100;
+    N0P = 10;
+    bmax = 1;
+    sigma_alpha = 0.5; % Resource niche width
+    sigma_gamma = 0.5; % Predator trait niche width
     a_0N = 2; % Base attack rate
     a_0P = 0.008; % Base attack rate
-    N0N = 100;
-    N0P = 5;
-    bmax = 1;
     g = 0.5;
-    sigma_alpha = 0.5; % Resource niche width
+    morphs = 1;
+    if ~isempty(varargin)
+        sigma_alpha = varargin{1};
+        P_mutate = varargin{2};
+    end
     sigma_beta = 0.5; % Habitat niche width
-    sigma_gamma = 0.5; % Predator trait niche width
     num_resources = 3;
     num_habitats = 1;
-    num_populations = 2; %% TODO: Fix for multiple populations, not just 1 prey and 1 pred
+    num_populations = 1; 
     
 
     % Initialize resources and populations
@@ -37,8 +42,17 @@ function main(varargin)
     population = Population.empty(num_populations,0);
     % Same resource trait (1) on different habitats with hab trait (i)
 
-    population(1) = Population("prey", 2, 1, a_0N, 1, sigma_alpha, sigma_beta, N0N);
-    population(2) = Population("pred", 2, 1, a_0P, 1, sigma_gamma, sigma_beta*1.2, N0P);
+    for i=1:num_populations
+        if mod(i,2)==1 % Prey
+            if morphs>1 % Initialize prey populations with more than 1 trait
+                population(i) = Population("prey", 1:morphs, 1, a_0N, 1, sigma_alpha, sigma_beta, N0N);
+            else
+                population(i) = Population("prey", 2, 1, a_0N, 1, sigma_alpha, sigma_beta, N0N);
+            end
+        else
+            population(i) = Population("pred", 2, 1, a_0P, 1, sigma_gamma, sigma_beta, N0P);
+        end
+    end
     
     
     % Initialize trait values
@@ -65,20 +79,20 @@ function main(varargin)
 
     
     % Initialize plots
-    figure();
-    legendStr = " Population " + string(1:num_populations);
-    for i=1:num_habitats
-        tmp = "Hab " + i + "; Res " + string(1:num_resources);
-        legendStr = union(legendStr, tmp);
-    end
-    %subplot(2,1,1);
-    colors = ["#0072BD", "#D95319", "#EDB120", "#7E2F8E", "#77AC30", "#4DBEEE", "#A2142F", "#80B3FF"];
-    for i=1:(num_populations+(num_resources*num_habitats))
-        h(i) = animatedline("Color", colors(i), "Linewidth",1.5);
-    end
-    legend(legendStr);
-    xlabel("t");
-    ylabel("Abundance");
+%     figure();
+%     legendStr = " Population " + string(1:num_populations);
+%     for i=1:num_habitats
+%         tmp = "Hab " + i + "; Res " + string(1:num_resources);
+%         legendStr = union(legendStr, tmp);
+%     end
+%     %subplot(2,1,1);
+%     colors = ["#0072BD", "#D95319", "#EDB120", "#7E2F8E", "#77AC30", "#4DBEEE", "#A2142F", "#80B3FF"];
+%     for i=1:(num_populations+(num_resources*num_habitats))
+%         h(i) = animatedline("Color", colors(i), "Linewidth",1.5);
+%     end
+%     legend(legendStr);
+%     xlabel("t");
+%     ylabel("Abundance");
 %     hold on
 %     subplot(2,2,3);
 %     for i=1:num_populations
@@ -94,9 +108,39 @@ function main(varargin)
 %     ylabel("Abundance");
 %     hold off;
 
+% Initialize file
+    outfile = strcat('Results/prey_sigmaalpha_',num2str(sigma_alpha), '_', datestr(datetime('now'), 'yymmddHHMMSS'),'.csv');
+    outfile_traits = fopen(outfile, 'w');
+
     %Iterate for each timestep
     % Run simulation
+    end_of_simulation = false;
     for t = 1:t_end
+        %% Print trait values to files
+        if mod(t,2)==0
+            for i=1:num_populations
+                %Trait values
+                trait_keys = population(i).trait_values.keys();
+                trait_val = population(i).trait_values.values();
+                if length(trait_keys)==0
+                    end_of_simulation=true;
+                end
+                for j=1:length(trait_keys)
+                    if mod(i,2)==1 % Prey file
+                        %fprintf('%d\t%.3f\t%d\tprey\n', t, trait_keys{j}, trait_val{j});
+                        fprintf(outfile_traits,'%d\t%.3f\t%d\tprey\n', t, trait_keys{j}, trait_val{j});
+                    else
+                        fprintf('%d\t%.3f\t%d\tpred\n', t, trait_keys{j}, trait_val{j});
+                        %fprintf(outfile_traits,'%d\t%.3f\t%d\tpred\n', t, trait_keys{j}, trait_val{j});
+                    end
+                end
+            end
+        end
+
+        if end_of_simulation
+            break
+        end
+
         %% Prey consumption
         prey_pop = [population([population.type]=="prey").individuals];
         cellarr = {prey_pop.a_k};
@@ -206,22 +250,22 @@ function main(varargin)
         for p=1:num_populations
             population(p).trait_values = population(p).update_trait_freq();
             if population(p).type=="pred"
-%                 if isempty(population(p).individuals)
-%                     disp("RIP");
-%                 end
+                %if isempty(population(p).individuals)
+                %    disp("RIP");
+                %end
                 prey_trait = [population([population.type]=="prey").individuals.alpha];
                 for i = 1:length(population(p).individuals)
                     population(p).individuals(i).a_k = population(p).individuals(i).consumption(prey_trait, num_habitats);
                 end
                 population(p).attack_rate = population(p).update_attack_rate(); % Can be redundant and optimized above, to be tested
             end
-            addpoints(h(p),t,population_size(t,p));
+%             addpoints(h(p),t,population_size(t,p));
         end
         % Add to figure p+num_populations
         tmp = 1;
         for p=1:num_resources
             for q=1:num_habitats
-                addpoints(h(tmp+num_populations),t,resource_abundance(t,q,p));
+%                 addpoints(h(tmp+num_populations),t,resource_abundance(t,q,p));
                 tmp = tmp+1;
             end
         end
@@ -234,15 +278,9 @@ function main(varargin)
         %clearpoints(h3);
         %addpoints(h3,trait_values(1,:),trait_values(2,:));
         %addpoints(h3,trait_values(1,trait_values(2,:)>50),trait_values(2,trait_values(2,:)>50));
-        drawnow;
-        if mod(t,100)==0
-            disp(population(1).trait_values.keys());
-            disp(population(1).trait_values.values());
-            disp(population(2).trait_values.keys());
-            disp(population(2).trait_values.values());
-        end
+        %drawnow;
     end
-    disp(mean(population_size(:,1)));
-    disp(mean(population_size(:,2)));
-
+    %fclose(preyfile_traits);
+    fclose(outfile_traits);
+    %exit();
 end

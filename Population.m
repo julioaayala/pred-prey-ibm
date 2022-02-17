@@ -13,17 +13,30 @@ classdef Population
             else
                 obj.type = type;
                 if type=="pred"
-                    obj.individuals = Predator.empty(n,0);
+                    obj.individuals = Predator.empty(n*length(alpha),0);
                 elseif type=="prey"
-                    obj.individuals = Prey.empty(n,0);
+                    obj.individuals = Prey.empty(n*length(alpha),0);
                 end
-                for i=1:n
-                    if type=="pred"
-                        obj.individuals(i) = Predator(alpha, beta, a_0, habitat, sigma_alpha, sigma_beta);
-                    elseif type=="prey"
-                        obj.individuals(i) = Prey(alpha, beta, a_0, habitat, sigma_alpha, sigma_beta);
+                if length(alpha)>1
+                    for a=1:length(alpha)
+                        for i=1:n
+                            if type=="pred"
+                                obj.individuals((a-1)*n+i) = Predator(alpha(a), beta, a_0, habitat, sigma_alpha, sigma_beta);
+                            elseif type=="prey"
+                                obj.individuals((a-1)*n+i) = Prey(alpha(a), beta, a_0, habitat, sigma_alpha, sigma_beta);
+                            end
+                        end
+                    end
+                else
+                    for i=1:n
+                        if type=="pred"
+                            obj.individuals(i) = Predator(alpha, beta, a_0, habitat, sigma_alpha, sigma_beta);
+                        elseif type=="prey"
+                            obj.individuals(i) = Prey(alpha, beta, a_0, habitat, sigma_alpha, sigma_beta);
+                        end
                     end
                 end
+                
             end
         end
         % Get the frequency of a habitat in populations.
