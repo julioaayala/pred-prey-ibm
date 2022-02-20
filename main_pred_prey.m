@@ -161,7 +161,6 @@ function main_pred_prey(varargin)
         prey_pop = [population([population.type]=="prey").individuals];
         cellarr = {prey_pop.a_k};
         a_k_matrix = cat(3,cellarr{:});
-        disp(size(a_k_matrix));
         % Calculate equilibrium resource abundance
         for i=1:num_habitats % Get for all current populations
             for j=1:num_resources
