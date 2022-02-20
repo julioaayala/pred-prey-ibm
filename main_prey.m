@@ -114,7 +114,7 @@ function main_prey(varargin)
 %     hold off;
 
     % Initialize output file
-    outfile = strcat('Results/prey_sigmaalpha_',num2str(sigma_alpha), '_', datestr(datetime('now'), 'yymmddHHMMSS'),'.csv');
+    outfile = strcat('Results/prey_sigmaalpha_',num2str(sigma_alpha), '_pmutprey_',num2str(p_mut_prey),'_', datestr(datetime('now'), 'yymmddHHMMSS'),'.csv');
     outfile_traits = fopen(outfile, 'w');
 
     %Iterate for each timestep

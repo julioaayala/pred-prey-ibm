@@ -30,7 +30,7 @@ function main_pred_prey(varargin)
         p_mut_prey= varargin{6};
         p_mut_pred= varargin{7};
     end
-    
+
     sigma_beta = 0.5; % Habitat niche width
     num_resources = 3;
     num_habitats = 1;
@@ -121,7 +121,7 @@ function main_pred_prey(varargin)
 %     hold off;
 
 % Initialize file
-    outfile = strcat('Results/pred_prey_sigmaalpha_',num2str(sigma_alpha), '_pmut_',num2str(p_mut_prey), ...
+    outfile = strcat('Results/pred_prey_sigmaalpha_',num2str(sigma_alpha), '_pmutprey_',num2str(p_mut_prey), ...
         '_sigmagamma_',num2str(sigma_gamma),'_attack_',num2str(a_0P), ...
         '_g_',num2str(g),'_pmutpred_',num2str(p_mut_pred),'_morphsinit_',num2str(morphs),'_',datestr(datetime('now'), 'yymmddHHMMSS'),'.csv');
     disp(outfile);
