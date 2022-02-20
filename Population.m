@@ -4,19 +4,22 @@ classdef Population
         type
         trait_values
         attack_rate
+        p_mut
     end
     methods
         % Constructor
-        function obj = Population(type, alpha, beta, a_0, habitat, sigma_alpha, sigma_beta, n)
+        function obj = Population(type, alpha, beta, a_0, habitat, sigma_alpha, sigma_beta, n, p_mut)
             if nargin==0
                 obj.individuals = Individual.empty(1,0);
             else
                 obj.type = type;
+                obj.p_mut = p_mut;
                 if type=="pred"
                     obj.individuals = Predator.empty(n*length(alpha),0);
                 elseif type=="prey"
                     obj.individuals = Prey.empty(n*length(alpha),0);
                 end
+                %% Polimorphic initical population
                 if length(alpha)>1
                     for a=1:length(alpha)
                         for i=1:n
@@ -27,6 +30,7 @@ classdef Population
                             end
                         end
                     end
+                %% Monomorphic initical population
                 else
                     for i=1:n
                         if type=="pred"
@@ -36,7 +40,6 @@ classdef Population
                         end
                     end
                 end
-                
             end
         end
         % Get the frequency of a habitat in populations.

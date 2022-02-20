@@ -3,8 +3,9 @@ function main_prey(varargin)
     t_end = 4000;
     F = 2; % Fecundity rate
     K = 300; % Carrying capacity
-    P_dispersal = 0; % Probability of dispersal
-    P_mutate = 1e-4; % Probability of mutation
+    p_dispersal = 0; % Probability of dispersal
+    p_mut_prey = 1e-4; % Probability of mutation of prey
+    p_mut_pred = 0;
     delta_mut = 0.2; % Mutation delta
     N0N = 100;
     N0P = 10;
@@ -15,9 +16,13 @@ function main_prey(varargin)
     a_0P = 0.008; % Base attack rate
     g = 0.5;
     morphs = 1;
+
+    % Genetics
+    loci = 8; % To be implemented
+
     if ~isempty(varargin)
         sigma_alpha = varargin{1};
-        P_mutate = varargin{2};
+        p_mut_prey = varargin{2};
     end
     sigma_beta = 0.5; % Habitat niche width
     num_resources = 3;
@@ -45,12 +50,12 @@ function main_prey(varargin)
     for i=1:num_populations
         if mod(i,2)==1 % Prey
             if morphs>1 % Initialize prey populations with more than 1 trait
-                population(i) = Population("prey", 1:morphs, 1, a_0N, 1, sigma_alpha, sigma_beta, N0N);
+                population(i) = Population("prey", 1:morphs, 1, a_0N, 1, sigma_alpha, sigma_beta, N0N, p_mut_prey);
             else
-                population(i) = Population("prey", 2, 1, a_0N, 1, sigma_alpha, sigma_beta, N0N);
+                population(i) = Population("prey", 2, 1, a_0N, 1, sigma_alpha, sigma_beta, N0N, p_mut_prey);
             end
         else
-            population(i) = Population("pred", 2, 1, a_0P, 1, sigma_gamma, sigma_beta, N0P);
+            population(i) = Population("pred", 2, 1, a_0P, 1, sigma_gamma, sigma_beta, N0P, p_mut_pred);
         end
     end
     
@@ -108,7 +113,7 @@ function main_prey(varargin)
 %     ylabel("Abundance");
 %     hold off;
 
-% Initialize file
+    % Initialize output file
     outfile = strcat('Results/prey_sigmaalpha_',num2str(sigma_alpha), '_', datestr(datetime('now'), 'yymmddHHMMSS'),'.csv');
     outfile_traits = fopen(outfile, 'w');
 
@@ -130,8 +135,8 @@ function main_prey(varargin)
                         %fprintf('%d\t%.3f\t%d\tprey\n', t, trait_keys{j}, trait_val{j});
                         fprintf(outfile_traits,'%d\t%.3f\t%d\tprey\n', t, trait_keys{j}, trait_val{j});
                     else
-                        fprintf('%d\t%.3f\t%d\tpred\n', t, trait_keys{j}, trait_val{j});
-                        %fprintf(outfile_traits,'%d\t%.3f\t%d\tpred\n', t, trait_keys{j}, trait_val{j});
+                        %fprintf('%d\t%.3f\t%d\tpred\n', t, trait_keys{j}, trait_val{j});
+                        fprintf(outfile_traits,'%d\t%.3f\t%d\tpred\n', t, trait_keys{j}, trait_val{j});
                     end
                 end
             end
@@ -193,7 +198,7 @@ function main_prey(varargin)
               for j=1:F % Create for every offspring
                   offspring = copy(population(p).individuals(i));
                   %% Mutate
-                  if P_mutate >= rand()
+                  if population(p).p_mut >= rand()
                     if rand()>0 %%Mutate only resource trait
                         offspring.alpha = offspring.mutate_alpha(delta_mut);
                     else
@@ -205,7 +210,7 @@ function main_prey(varargin)
                     end
                   end               
                   %% Disperse
-                  if P_dispersal >= rand() && num_habitats>1
+                  if p_dispersal >= rand() && num_habitats>1
                       % Switch to a neighbouringh hab
                       offspring.habitat = offspring.disperse(num_habitats);
                       % Recalculate consumption for prey, since pred is

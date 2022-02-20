@@ -8,6 +8,7 @@ classdef Individual < matlab.mixin.Copyable
         sigma_beta % habitat niche width
         a_k % attack rate for the kth resource
         fitness % fitness value of individual
+        alpha_genotype % Genotype for alpha trait
     end
     methods
         % Constructor
@@ -26,6 +27,7 @@ classdef Individual < matlab.mixin.Copyable
                 obj.habitat = habitat;
                 obj.sigma_alpha = sigma_alpha;
                 obj.sigma_beta = sigma_beta;
+                obj.alpha_genotype = Genetics('Diallelic', 8, alpha, 0, 4);
             end
         end
         % attack rate function
