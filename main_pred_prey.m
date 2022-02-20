@@ -131,15 +131,15 @@ function main_pred_prey(varargin)
     % Run simulation
     end_of_simulation = false;
     for t = 1:t_end
-        %% Print trait values to files
-        if mod(t,2)==0
-            for i=1:num_populations
-                %Trait values
-                trait_keys = population(i).trait_values.keys();
-                trait_val = population(i).trait_values.values();
-                if length(trait_keys)==0
-                    end_of_simulation=true;
-                end
+        for i=1:num_populations
+            %Trait values
+            trait_keys = population(i).trait_values.keys();
+            trait_val = population(i).trait_values.values();
+            if length(trait_keys)==0
+                end_of_simulation=true;
+            end
+            %% Print trait values to files
+            if mod(t,2)==0
                 for j=1:length(trait_keys)
                     if mod(i,2)==1 % Prey file
                         %fprintf('%d\t%.3f\t%d\tprey\n', t, trait_keys{j}, trait_val{j});
@@ -151,6 +151,7 @@ function main_pred_prey(varargin)
                 end
             end
         end
+        
 
         if end_of_simulation
             break
@@ -160,6 +161,7 @@ function main_pred_prey(varargin)
         prey_pop = [population([population.type]=="prey").individuals];
         cellarr = {prey_pop.a_k};
         a_k_matrix = cat(3,cellarr{:});
+        disp(size(a_k_matrix));
         % Calculate equilibrium resource abundance
         for i=1:num_habitats % Get for all current populations
             for j=1:num_resources
