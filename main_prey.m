@@ -16,6 +16,10 @@ function main_prey(varargin)
     a_0P = 0.008; % Base attack rate
     g = 0.5;
     morphs = 1;
+    c_a_pred = 0;
+    c_a_prey = 0;
+    c_ss_pred = 0;
+    c_ss_prey = 0;
 
     % Genetics
     loci = 8; % To be implemented
@@ -50,12 +54,12 @@ function main_prey(varargin)
     for i=1:num_populations
         if mod(i,2)==1 % Prey
             if morphs>1 % Initialize prey populations with more than 1 trait
-                population(i) = Population("prey", 1:morphs, 1, a_0N, 1, sigma_alpha, sigma_beta, N0N, p_mut_prey);
+                population(i) = Population("prey", 1:morphs, 1, a_0N, 1, sigma_alpha, sigma_beta, c_a_prey, c_ss_prey, N0N, p_mut_prey);
             else
-                population(i) = Population("prey", 2, 1, a_0N, 1, sigma_alpha, sigma_beta, N0N, p_mut_prey);
+                population(i) = Population("prey", 2, 1, a_0N, 1, sigma_alpha, sigma_beta, c_a_prey, c_ss_prey, N0N, p_mut_prey);
             end
         else
-            population(i) = Population("pred", 2, 1, a_0P, 1, sigma_gamma, sigma_beta, N0P, p_mut_pred);
+            population(i) = Population("pred", 2, 1, a_0P, 1, sigma_gamma, sigma_beta, c_a_pred, c_ss_pred, N0P, p_mut_pred);
         end
     end
     

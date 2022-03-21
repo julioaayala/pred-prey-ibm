@@ -4,11 +4,12 @@ classdef Genetics < matlab.mixin.Copyable
         loci    % Number of loci
         genotype % Matrix of binary values
         minval  % range of phenotype values
-        maxval  
+        maxval
+        p_mut
     end
     methods
         % Constructor
-        function obj = Genetics(type, loci, value, minval, maxval)
+        function obj = Genetics(type, loci, value, minval, maxval, p_mut)
             if nargin==0
                 obj.type = "Diallelic";
                 obj.loci = 1;
@@ -17,6 +18,7 @@ classdef Genetics < matlab.mixin.Copyable
                 obj.loci = loci;
                 obj.minval = minval;
                 obj.maxval = maxval;
+                obj.p_mut = p_mut;
             end
             obj.genotype = phen_to_gen(obj, value);
         end
@@ -48,17 +50,23 @@ classdef Genetics < matlab.mixin.Copyable
             phenotype = obj.minval + (obj.maxval-obj.minval) * (rescaled-(obj.loci*-1))/(2*obj.loci);
         end
         %% Mutate
-        function obj = mutate_genotype(obj, p_mut)
-            if p_mut >= rand()
-                i = randsample(obj.loci,1); % locus pos
-                j = randsample(2,1); % allele pos
-                obj.genotype(i,j) = abs(obj.genotype(i,j)-1); % Mutate locus
+        function obj = mutate(obj)
+            % Function to mutate on each loci based on p_mut
+            rangen = rand(obj.loci,1);
+            mutations = find(obj.p_mut>=rangen); % Get indices of mutations
+            for i=1:length(mutations)
+                j = randsample(2,1); % allele
+                obj.genotype(mutations(i),j) = abs(obj.genotype(mutations(i),j)-1); % Mutate locus
             end
         end
         %% Recombination
-        function recombined = recombinate(obj, obj2)
-            i = randsample(obj.loci,1); % locus split position
-            j = randsample(2,1); % allele pos
+        function obj = recombinate(obj, obj2)
+            recombined = zeros([obj.loci,2]);
+            % Choose 1 allele from each parent
+            for i=1:obj.loci
+                recombined(i,:) = [obj.genotype(i,randsample(2,1)), obj2.genotype(i,randsample(2,1))];
+            end
+            obj.genotype = recombined;
         end
     end
 end

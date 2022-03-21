@@ -1,34 +1,63 @@
 classdef Individual < matlab.mixin.Copyable
     properties
+        % Traits
         alpha % trait alpha (resource)
         beta % trait beta (habitat)
+        dis % Display trait
+        pref % Preference trait
         a_0 % base attack rate
         habitat % Curent habitat 
         sigma_alpha % resource niche width
         sigma_beta % habitat niche width
+        % Choosiness
+        c_a % Choosiness for alpha/gamma value 
+        c_ss % Choosines of sexual selection
+        % Calculated values
         a_k % attack rate for the kth resource
         fitness % fitness value of individual
-        alpha_genotype % Genotype for alpha trait
+        % Genotype
+        alpha_gene % Genotype for alpha trait
+        beta_gene % Genotype for alpha trait
+        dis_gene % Genotype for display trait
+        pref_gene % Genotype for preference trait
+        p_mut % P of mutation
     end
     methods
         % Constructor
-        function obj = Individual(alpha, beta, a_0, habitat, sigma_alpha, sigma_beta)
+        function obj = Individual(alpha, beta, a_0, habitat, sigma_alpha, sigma_beta, c_a, c_ss, loci, p_mut)
+            
             if nargin==0
                 obj.alpha = 0;
                 obj.beta = 0;
+                obj.dis = 0;
+                obj.pref = 0;
                 obj.a_0 = 0;
                 obj.habitat = 0;
                 obj.sigma_alpha = 0;
                 obj.sigma_beta = 0;
+                obj.c_a = 0;
+                obj.c_ss = 0;
+                obj.p_mut = 0;
             else
                 obj.alpha = alpha;
                 obj.beta = beta;
+                obj.dis = 0;
+                obj.pref = 0;
                 obj.a_0 = a_0;
                 obj.habitat = habitat;
                 obj.sigma_alpha = sigma_alpha;
                 obj.sigma_beta = sigma_beta;
-                obj.alpha_genotype = Genetics('Diallelic', 8, alpha, 0, 4);
+                obj.c_a = c_a;
+                obj.c_ss = c_ss;
+                obj.p_mut = p_mut;
             end
+            %% Genotype
+            % Ecological traits
+            obj.alpha_gene = Genetics('Diallelic', loci.alpha, alpha, 0, 4, p_mut);
+            obj.beta_gene = Genetics('Diallelic', loci.beta, beta, 0, 4, p_mut);
+            % Display and preference traits
+            obj.dis_gene = Genetics('Diallelic', loci.dis, obj.dis, -2, 2, p_mut);
+            obj.pref_gene = Genetics('Diallelic', loci.pref, obj.pref, -2, 2, p_mut);
         end
         % attack rate function
         function aik = consumption(obj, resources, habitats)
@@ -80,20 +109,6 @@ classdef Individual < matlab.mixin.Copyable
                 if obj(i).alpha == trait
                     subpop(length(subpop)+1) = obj(i);
                 end
-            end
-        end
-        function new_trait = mutate_alpha(obj, delta)
-            if rand() >= 0.5
-                new_trait = obj.alpha+delta; 
-            else 
-                new_trait = obj.alpha-delta; 
-            end
-        end
-        function new_trait = mutate_beta(obj, delta)
-            if rand() >= 0.5
-                new_trait = obj.beta+delta; 
-            else 
-                new_trait = obj.beta-delta; 
             end
         end
     end

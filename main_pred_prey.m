@@ -1,11 +1,11 @@
 function main_pred_prey(varargin)
     %Parameters
-    t_end = 500;
+    t_end = 2500;
     F = 2; % Fecundity rate
-    K = 300; % Carrying capacity
+    K = 500; % Carrying capacity
     p_dispersal = 0; % Probability of dispersal
-    p_mut_prey = 0; % Probability of mutation
-    p_mut_pred= 0;
+    p_mut_prey = 0.5; % Probability of mutation
+    p_mut_pred= 0.5;
     delta_mut = 0.2; % Mutation delta
     N0N = 100;
     N0P = 10;
@@ -15,26 +15,49 @@ function main_pred_prey(varargin)
     a_0N = 2; % Base attack rate
     a_0P = 0.05; % Base attack rate
     g = 0.5;
+    num_populations = 2; % Predator and prey
     morphs = 3;
+    c_a_pred = -log(0.5);
+    c_a_prey = -log(0.5);
+    c_ss_pred = 0;
+    c_ss_prey = 0;
+    is_sexual = 0; % Sexual/asexual reproduction
 
-
-    % Genetics
-    loci = 8; % To be implemented
+    % Number of loci per trait
+    loci.alpha = 32;
+    loci.beta = 8;
+    loci.dis = 8;
+    loci.pref = 8;
 
     if ~isempty(varargin)
-        sigma_alpha = varargin{1};
-        sigma_gamma = varargin{2};
-        a_0P = varargin{3}; % Base attack rate pred
-        g = varargin{4};
-        morphs = varargin{5};
-        p_mut_prey= varargin{6};
-        p_mut_pred= varargin{7};
+        if length(varargin)==5
+            num_populations = 1;
+            sigma_alpha = varargin{1};
+            morphs = varargin{2};
+            p_mut_prey = varargin{3};
+            is_sexual = varargin{4}; 
+            c_a_prey =  varargin{5}; 
+        else % Pred-prey system
+            num_populations = 2; % 1 for prey only, 2 for pred-prey
+            sigma_alpha = varargin{1};
+            sigma_gamma = varargin{2};
+            a_0P = varargin{3}; % Base attack rate pred
+            g = varargin{4};
+            morphs = varargin{5};
+            p_mut_prey = varargin{6};
+            p_mut_pred = varargin{7};
+            is_sexual = varargin{8}; % 1 for sexual, 0 for asexual
+            c_a_prey =  varargin{9}; % choosines parameter prey
+            c_a_pred =  varargin{10}; % choosines parameter pred
+            
+        end
     end
+
 
     sigma_beta = 0.5; % Habitat niche width
     num_resources = 3;
     num_habitats = 1;
-    num_populations = 2; 
+    
     
 
     % Initialize resources and populations
@@ -57,14 +80,15 @@ function main_pred_prey(varargin)
     for i=1:num_populations
         if mod(i,2)==1 % Prey
             if morphs>1 % Initialize prey populations with more than 1 trait
-                population(i) = Population("prey", 1:morphs, 1, a_0N, 1, sigma_alpha, sigma_beta, N0N, p_mut_prey);
+                population(i) = Population("prey", 1:morphs, 1, a_0N, 1, sigma_alpha, sigma_beta, c_a_prey, c_ss_prey, N0N, p_mut_prey, loci);
             else
-                population(i) = Population("prey", 2, 1, a_0N, 1, sigma_alpha, sigma_beta, N0N, p_mut_prey);
+                population(i) = Population("prey", 2, 1, a_0N, 1, sigma_alpha, sigma_beta, c_a_prey, c_ss_prey, N0N, p_mut_prey, loci);
             end
         else
-            population(i) = Population("pred", 2, 1, a_0P, 1, sigma_gamma, sigma_beta, N0P, p_mut_pred);
+            population(i) = Population("pred", 2, 1, a_0P, 1, sigma_gamma, sigma_beta, c_a_pred, c_ss_pred, N0P, p_mut_pred, loci);
         end
     end
+
     
     
     % Initialize trait values
@@ -121,10 +145,13 @@ function main_pred_prey(varargin)
 %     hold off;
 
 % Initialize file
-    outfile = strcat('Results/pred_prey_sigmaalpha_',num2str(sigma_alpha), '_pmutprey_',num2str(p_mut_prey), ...
+    if num_populations==2 % When there is only prey
+        outfile = strcat('Results/pred_prey_sigmaalpha_',num2str(sigma_alpha), '_pmutprey_',num2str(p_mut_prey), ...
         '_sigmagamma_',num2str(sigma_gamma),'_attack_',num2str(a_0P), ...
-        '_g_',num2str(g),'_pmutpred_',num2str(p_mut_pred),'_morphsinit_',num2str(morphs),'_',datestr(datetime('now'), 'yymmddHHMMSS'),'.csv');
-    disp(outfile);
+        '_g_',num2str(g),'_pmutpred_',num2str(p_mut_pred),'_caprey_',num2str(c_a_prey),'_capred_',num2str(c_a_pred),'_morphsinit_',num2str(morphs),'_sexual_',num2str(is_sexual),'_',datestr(datetime('now'), 'yymmddHHMMSS'),'.csv');
+    else
+        outfile = strcat('Results/prey_sigmaalpha_',num2str(sigma_alpha), '_pmutprey_',num2str(p_mut_prey),'_caprey_',num2str(c_a_prey),'_morphsinit_',num2str(morphs),'_sexual_',num2str(is_sexual),'_', datestr(datetime('now'), 'yymmddHHMMSS'),'.csv');
+    end
     outfile_traits = fopen(outfile, 'w');
 
     %Iterate for each timestep
@@ -172,18 +199,6 @@ function main_pred_prey(varargin)
 
         %% Predator consumption
         pred_pop = [population([population.type]=="pred").individuals];
-%         if width(pred_pop)>0
-%             cellarr = {pred_pop.a_k};
-%             a_k_matrix = cat(3,cellarr{:});
-%             % Calculate equilibrium resource abundance
-%             for i=1:num_habitats % Get for all current populations
-%                 for j=1:num_populations
-%                     if population(j).type=="pred"
-%                         % Feed
-%                     end
-%                 end
-%             end
-%         end
 
         %% Execute for every population
         for p = 1:num_populations
@@ -195,7 +210,7 @@ function main_pred_prey(varargin)
           end
           tmp_popsize = containers.Map('KeyType','double','ValueType','double');
           pop_trait = [population(p).individuals.alpha];
-          % Count individuals by habitat
+          % Count individuals by trait value
           for i = 1:length(pop_trait)
               if ismember(pop_trait(i), cell2mat(keys(tmp_popsize)))
                 tmp_popsize(pop_trait(i)) = tmp_popsize(pop_trait(i)) + 1;
@@ -203,51 +218,44 @@ function main_pred_prey(varargin)
                 tmp_popsize(pop_trait(i)) = 1;
               end
           end
-
+          
+          % Reproduce every individual
           for i = 1:length(population(p).individuals)
-              %% Reproduce
-              for j=1:F % Create for every offspring
-                  offspring = copy(population(p).individuals(i));
-                  %% Mutate
-                  if population(p).p_mut >= rand()
-                    if rand()>0 %%Mutate only resource trait
-                        offspring.alpha = offspring.mutate_alpha(delta_mut);
-                    else
-                        offspring.beta = offspring.mutate_beta(delta_mut);
-                    end
-                    %% TODO: Fix this
-                    if isa(offspring,'Prey') %Prey offspring
-                        offspring.a_k = offspring.consumption(resources, num_habitats);
-                    end
-                  end               
+              %% Mate, reproduce and mutate, or just clone and mutate for asexual organisms
+              next_gen = reproduce(i,population(p), F, is_sexual);
+                
+              for j=1:length(next_gen) % For every offspring, disperse and evaluate fitness
+                  offspring = next_gen(j);
+                  if isa(offspring,'Prey') %Prey offspring, calculate 
+                      offspring.a_k = offspring.consumption(resources, num_habitats);
+                  end
                   %% Disperse
                   if p_dispersal >= rand() && num_habitats>1
                       % Switch to a neighbouringh hab
                       offspring.habitat = offspring.disperse(num_habitats);
-                      % Recalculate consumption for prey, since pred is
-                      % always calculated
-                      if isa(offspring,'Prey') %Prey offspring
+                      % Recalculate consumption for prey in new habitat
+                      if isa(offspring,'Prey')
                         offspring.a_k = offspring.consumption(resources, num_habitats);
                       end
                   end
                   currhab = offspring.habitat;
                   %% Fitness
                   pred_attack = zeros(i);
-
+                  % This can be moved
                   if width(pred_pop)>0 && isa(offspring,'Prey')
                     pred_attack = [population([population.type]=="pred").attack_rate];
                     pred_attack = pred_attack(:,i);
                   end
-                  if num_habitats==1 % Model A
+                  if num_habitats==1 %% Model A
                       if isa(offspring,'Prey') %Prey offspring
                         offspring.fitness = offspring.calc_fitness_alpha(resources(currhab,:), pred_attack, bmax);
                       else %Predator offspring
                         offspring.a_k = offspring.consumption([prey_pop.alpha], num_habitats);
                         offspring.fitness = offspring.calc_fitness_alpha(bmax);
                       end
-                  elseif num_resources==1 % Model B
+                  elseif num_resources==1 %% Model B
                     offspring.fitness = offspring.calc_fitness_beta(resources(currhab,:), population.get_popsize(currhab), F);
-                  else % Model A+B
+                  else %% Model A+B
                     offspring.fitness = offspring.calc_fitness_full(resources); 
                   end
                   survival = offspring.fitness/F;

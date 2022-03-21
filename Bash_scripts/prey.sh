@@ -12,4 +12,4 @@
 module load matlab
 
 cd /home/ayalaj/Pred_prey_dynamics/pred-prey-ibm
-matlab -r "main_prey(alpha,pmut)"
+matlab -r "main_pred_prey(alpha,morphsinit,pmutprey,is_sexual,c_a_prey)"
