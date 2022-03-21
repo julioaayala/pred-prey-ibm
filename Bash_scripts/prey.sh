@@ -4,9 +4,9 @@
 #SBATCH -t 4:00:00
 #SBATCH --mail-user=ju7141ay-s@student.lu.se
 #SBATCH --mail-type=FAIL
-#SBATCH -J Prey_alpha_pmut_morphsinit_is_sexual_c_a_prey.out
-#SBATCH -o Prey_alpha_pmut_morphsinit_is_sexual_c_a_prey.out
-#SBATCH -e Prey_alpha_pmut_morphsinit_is_sexual_c_a_prey.out
+#SBATCH -J Prey_alpha_pmutprey_morphsinit_is_sexual_c_a_prey.out
+#SBATCH -o Prey_alpha_pmutprey_morphsinit_is_sexual_c_a_prey.out
+#SBATCH -e Prey_alpha_pmutprey_morphsinit_is_sexual_c_a_prey.out
 #SBATCH -D /home/ayalaj/Pred_prey_dynamics/pred-prey-ibm
 
 module load matlab
