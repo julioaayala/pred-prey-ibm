@@ -14,6 +14,23 @@ done
 for gamma in $(cat Params/sigma_gamma.txt);
   do for aP in $(cat Params/pred_attack.txt);
     do for efficiency in $(cat Params/pred_efficiency.txt);
+      do for c_a_pred in 0;
+        do for sexual_rep in 0;
+          do sed "s/alpha/0.5/g" pred_prey.sh| sed "s/gamma/$gamma/g" | sed "s/aP/$aP/g" | sed "s/efficiency/$efficiency/g" | \
+           sed "s/morphsinit/3/g" | sed "s/morphsinit/3/g" | sed "s/pmutprey/0/g" | sed "s/pmutpred/0/g" | sed "s/is_sexual/$sexual_rep/g" |\
+           sed "s/c_a_prey/$c_a_pred/g" | sed "s/c_a_pred/$c_a_pred/g" \
+           > Pred_prey/pred_prey_sigmaalpha_0.5_pmut_0_sigmagamma_$(echo $gamma)_attack_$(echo $aP)_g_$(echo $efficiency)_pmutpred_0_pmutprey_0_caprey_$(echo $c_a_pred)_capred_$(echo $c_a_pred)_sexual_$(echo $sexual_rep).sh;
+        done;
+      done;
+    done;
+  done;
+done
+
+## Build sh scripts for pred_prey (3 prey morphs, sexual_reproduction)
+
+for gamma in $(cat Params/sigma_gamma.txt);
+  do for aP in $(cat Params/pred_attack.txt);
+    do for efficiency in $(cat Params/pred_efficiency.txt);
       do for c_a_pred in $(cat Params/pred_choosiness_a.txt);
         do for sexual_rep in 0 1;
           do sed "s/alpha/0.5/g" pred_prey.sh| sed "s/gamma/$gamma/g" | sed "s/aP/$aP/g" | sed "s/efficiency/$efficiency/g" | \
