@@ -4,8 +4,8 @@ function main_pred_prey(varargin)
     F = 2; % Fecundity rate
     K = 400; % Carrying capacity
     p_dispersal = 0; % Probability of dispersal
-    p_mut_prey = 0.5; % Probability of mutation
-    p_mut_pred= 0.5;
+    p_mut_prey = 0; % Probability of mutation
+    p_mut_pred= 0;
     delta_mut = 0.2; % Mutation delta
     N0N = 100;
     N0P = 10;
@@ -94,6 +94,7 @@ function main_pred_prey(varargin)
     % Initialize trait values
     for i=1:length(population)
         population(i).trait_values = population(i).update_trait_freq();
+        population(i).fitness_values = population(i).update_fitness_values();
     end
     
     %% Initialize attack rate for the population
@@ -162,6 +163,7 @@ function main_pred_prey(varargin)
             %Trait values
             trait_keys = population(i).trait_values.keys();
             trait_val = population(i).trait_values.values();
+            fitness_val = population(i).fitness_values.values();
             if length(trait_keys)==0
                 end_of_simulation=true;
             end
@@ -170,10 +172,10 @@ function main_pred_prey(varargin)
                 for j=1:length(trait_keys)
                     if mod(i,2)==1 % Prey file
                         %fprintf('%d\t%.3f\t%d\tprey\n', t, trait_keys{j}, trait_val{j});
-                        fprintf(outfile_traits,'%d\t%.3f\t%d\tprey\n', t, trait_keys{j}, trait_val{j});
+                        fprintf(outfile_traits,'%d\t%.3f\t%d\t%d\tprey\n', t, trait_keys{j}, trait_val{j}, fitness_val{j});
                     else
                         %fprintf('%d\t%.3f\t%d\tpred\n', t, trait_keys{j}, trait_val{j});
-                        fprintf(outfile_traits,'%d\t%.3f\t%d\tpred\n', t, trait_keys{j}, trait_val{j});
+                        fprintf(outfile_traits,'%d\t%.3f\t%d\t%d\tpred\n', t, trait_keys{j}, trait_val{j}, fitness_val{j});
                     end
                 end
             end
@@ -273,6 +275,7 @@ function main_pred_prey(varargin)
         %Update figures and trait values
         for p=1:num_populations
             population(p).trait_values = population(p).update_trait_freq();
+            population(p).fitness_values = population(p).update_fitness_values();
             if population(p).type=="pred"
                 %if isempty(population(p).individuals)
                 %    disp("RIP");

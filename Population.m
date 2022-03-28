@@ -3,6 +3,7 @@ classdef Population
         individuals
         type
         trait_values
+        fitness_values
         attack_rate
     end
     methods
@@ -72,6 +73,15 @@ classdef Population
             trait_freq = containers.Map('KeyType','double','ValueType','double');
             for i=1:length(unique_vals)
                 trait_freq(unique_vals(i)) = length(find(alpha==unique_vals(i)));
+            end
+        end
+        function trait_fit = update_fitness_values(obj)
+            alpha = [obj.individuals.alpha];
+            unique_vals = unique(alpha);
+            trait_fit = containers.Map('KeyType','double','ValueType','double');
+            for i=1:length(unique_vals)
+                subpop = obj.individuals([obj.individuals.alpha]==unique_vals(i));
+                trait_fit(unique_vals(i)) = mean([subpop.fitness]);
             end
         end
         function attack_rate = update_attack_rate(obj)
