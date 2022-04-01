@@ -61,6 +61,9 @@ function next_gen = reproduce(ind_index, pop, F, is_sexual)
         for i=1:F
             offspring = copy(ind);
             %% Probably mutate
+            offspring.alpha_gene = copy(ind.alpha_gene);
+            offspring.dis_gene = copy(ind.dis_gene);
+            offspring.pref_gene = copy(ind.pref_gene);
             offspring.alpha_gene.mutate();
             offspring.dis_gene.mutate();
             offspring.pref_gene.mutate();

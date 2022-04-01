@@ -6,17 +6,16 @@ function main_pred_prey(varargin)
     p_dispersal = 0; % Probability of dispersal
     p_mut_prey = 0; % Probability of mutation
     p_mut_pred= 0;
-    delta_mut = 0.2; % Mutation delta
-    N0N = 100;
-    N0P = 10;
+    N0N = int16(K);
+    N0P = int16(K/20);
     bmax = 1;
-    sigma_alpha = 0.5; % Resource niche width
+    sigma_alpha = 0.35; % Resource niche width
     sigma_gamma = 0.5; % Predator trait niche width
     a_0N = 2; % Base attack rate
     a_0P = 0.05; % Base attack rate
     g = 0.5;
-    num_populations = 2; % Predator and prey
-    morphs = 3;
+    num_populations = 1; % Prey only (2 for pred-prey)
+    morphs = 1;
     c_a_pred = -log(0.5);
     c_a_prey = -log(0.5);
     c_ss_pred = 0;
@@ -24,10 +23,15 @@ function main_pred_prey(varargin)
     is_sexual = 0; % Sexual/asexual reproduction
 
     % Number of loci per trait
-    loci.alpha = 32;
-    loci.beta = 8;
-    loci.dis = 8;
-    loci.pref = 8;
+    loci_prey.alpha = 16;
+    loci_prey.beta = 8;
+    loci_prey.dis = 8;
+    loci_prey.pref = 8;
+
+    loci_pred.alpha = 32;
+    loci_pred.beta = 8;
+    loci_pred.dis = 8;
+    loci_pred.pref = 8;
 
     if ~isempty(varargin)
         if length(varargin)==5
@@ -73,19 +77,18 @@ function main_pred_prey(varargin)
     % Individuals
     trait_frequency = {};   
     population_size = zeros(t_end,num_populations);
-    fitness = zeros(t_end,num_populations);
     population = Population.empty(num_populations,0);
     % Same resource trait (1) on different habitats with hab trait (i)
 
     for i=1:num_populations
         if mod(i,2)==1 % Prey
             if morphs>1 % Initialize prey populations with more than 1 trait
-                population(i) = Population("prey", 1:morphs, 1, a_0N, 1, sigma_alpha, sigma_beta, c_a_prey, c_ss_prey, N0N, p_mut_prey, loci);
+                population(i) = Population("prey", 1:morphs, 1, a_0N, 1, sigma_alpha, sigma_beta, c_a_prey, c_ss_prey, N0N, p_mut_prey, loci_prey);
             else
-                population(i) = Population("prey", 2, 1, a_0N, 1, sigma_alpha, sigma_beta, c_a_prey, c_ss_prey, N0N, p_mut_prey, loci);
+                population(i) = Population("prey", 2, 1, a_0N, 1, sigma_alpha, sigma_beta, c_a_prey, c_ss_prey, N0N, p_mut_prey, loci_prey);
             end
         else
-            population(i) = Population("pred", 2, 1, a_0P, 1, sigma_gamma, sigma_beta, c_a_pred, c_ss_pred, N0P, p_mut_pred, loci);
+            population(i) = Population("pred", 2, 1, a_0P, 1, sigma_gamma, sigma_beta, c_a_pred, c_ss_pred, N0P, p_mut_pred, loci_pred);
         end
     end
 
@@ -242,8 +245,8 @@ function main_pred_prey(varargin)
                   end
                   currhab = offspring.habitat;
                   %% Fitness
-                  pred_attack = zeros(i);
-                  % This can be moved
+                  pred_attack = zeros(1,i);
+                  % Calculate predator attack on ind. This can be moved?
                   if width(pred_pop)>0 && isa(offspring,'Prey')
                     pred_attack = [population([population.type]=="pred").attack_rate];
                     pred_attack = pred_attack(:,i);
@@ -255,9 +258,9 @@ function main_pred_prey(varargin)
                         offspring.a_k = offspring.consumption([prey_pop.alpha], num_habitats);
                         offspring.fitness = offspring.calc_fitness_alpha(bmax);
                       end
-                  elseif num_resources==1 %% Model B
+                  elseif num_resources==1 %% Model B (To be fixed)
                     offspring.fitness = offspring.calc_fitness_beta(resources(currhab,:), population.get_popsize(currhab), F);
-                  else %% Model A+B
+                  else %% Model A+B (To be fixed)
                     offspring.fitness = offspring.calc_fitness_full(resources); 
                   end
                   survival = offspring.fitness/F;
