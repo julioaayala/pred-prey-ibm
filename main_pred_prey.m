@@ -1,6 +1,6 @@
 function main_pred_prey(varargin)
     %Parameters
-    t_end = 2500;
+    t_end = 1000;
     F = 2; % Fecundity rate
     K = 400; % Carrying capacity
     p_dispersal = 0; % Probability of dispersal
@@ -53,7 +53,6 @@ function main_pred_prey(varargin)
             is_sexual = varargin{8}; % 1 for sexual, 0 for asexual
             c_a_prey =  varargin{9}; % choosines parameter prey
             c_a_pred =  varargin{10}; % choosines parameter pred
-            
         end
     end
 
