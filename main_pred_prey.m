@@ -226,8 +226,14 @@ function main_pred_prey(varargin)
           % Reproduce every individual
           for i = 1:length(population(p).individuals)
               %% Mate, reproduce and mutate, or just clone and mutate for asexual organisms
-              next_gen = reproduce(i,population(p), F, is_sexual);
-                
+              
+              % TODO: Modify
+              if population(p).type=="prey"
+                next_gen = reproduce(i,population(p), F, 0);
+              else
+                next_gen = reproduce(i,population(p), F, is_sexual);
+              end
+              
               for j=1:length(next_gen) % For every offspring, disperse and evaluate fitness
                   offspring = next_gen(j);
                   if isa(offspring,'Prey') %Prey offspring, calculate 
