@@ -1,8 +1,8 @@
 function main_pred_prey(varargin)
     %Parameters
-    t_end = 2500;
+    t_end = 5000;
     F = 2; % Fecundity rate
-    K = 400; % Carrying capacity
+    K = 500; % Carrying capacity
     p_dispersal = 0; % Probability of dispersal
     p_mut_prey = 0; % Probability of mutation
     p_mut_pred= 0;
@@ -233,7 +233,7 @@ function main_pred_prey(varargin)
               else
                 next_gen = reproduce(i,population(p), F, is_sexual);
               end
-              
+
               for j=1:length(next_gen) % For every offspring, disperse and evaluate fitness
                   offspring = next_gen(j);
                   if isa(offspring,'Prey') %Prey offspring, calculate 
