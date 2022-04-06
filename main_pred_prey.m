@@ -1,6 +1,6 @@
 function main_pred_prey(varargin)
     %Parameters
-    t_end = 5000;
+    t_end = 10000;
     F = 2; % Fecundity rate
     K = 400; % Carrying capacity
     p_dispersal = 0; % Probability of dispersal
