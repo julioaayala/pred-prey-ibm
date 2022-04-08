@@ -11,7 +11,7 @@ function next_gen = reproduce(ind_index, pop, F, is_sexual)
         %% Sexual case
         %% Mate choice
         % Choose from up to 100 individuals (Or pop size)
-        maxmates = min(100,length(pop.individuals)-1);
+        maxmates = min(1000,length(pop.individuals)-1);
         % Exclude the individual reproducing
         popexcl = pop.individuals(setdiff(1:length(pop.individuals),ind_index));
         % Sample possible mates without replacement
