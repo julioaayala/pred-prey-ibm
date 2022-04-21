@@ -24,7 +24,8 @@ function next_gen = reproduce(ind_index, pop, F, is_sexual)
             % Probability of acceptance by trait alpha
             P_alpha = p_assortative(ind.c_a, ind.alpha, ind2.alpha);
             % Probability of acceptance by preference/display traits *TBI
-            P_ss = p_assortative(ind.c_ss, ind.pref, ind2.dis);
+            % P_ss = p_assortative(ind.c_ss, ind.pref, ind2.dis);
+            P_ss = 1;
             % Joint probability
             P_A = P_alpha * P_ss;
             if P_A>= rand()
