@@ -1,6 +1,6 @@
 classdef Resource
     properties
-        trait % k Trait [1..5]
+        trait % k Trait [1..3]
         habitat % Hab #
         K % Carrying capacity
         Rk_eq % Eq. resouce abundance 

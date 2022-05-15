@@ -46,6 +46,7 @@ classdef Population
             habs = [obj.individuals.habitat];
             pop_size_habitat = sum(habs(:)==habitat);
         end
+        % Get the frequency of a trait in populations.
         function abundances = get_abundances(obj, trait)
             pop = [obj.individuals];
             hab_list = [pop.habitat];
@@ -61,12 +62,15 @@ classdef Population
                 end
             end
         end
+        % Get the total attack rate of the population
         function sum_ak = sum_ak(obj)
             prey_pop = [obj.individuals];
             cellarr = {prey_pop.a_k};
             a_k_matrix = cat(3,cellarr{:});
             sum_ak = sum(a_k_matrix,3);
         end
+        % Function to update the trait frequency attribute of the
+        % population
         function trait_freq = update_trait_freq(obj)
             alpha = [obj.individuals.alpha];
             unique_vals = unique(alpha);
@@ -75,6 +79,8 @@ classdef Population
                 trait_freq(unique_vals(i)) = length(find(alpha==unique_vals(i)));
             end
         end
+        % Function to update the fitness attribute of the
+        % population
         function trait_fit = update_fitness_values(obj)
             alpha = [obj.individuals.alpha];
             unique_vals = unique(alpha);
@@ -84,6 +90,8 @@ classdef Population
                 trait_fit(unique_vals(i)) = mean([subpop.fitness]);
             end
         end
+        % Function to update the attack rate attribute of the
+        % population
         function attack_rate = update_attack_rate(obj)
           if ~isempty(obj.individuals)
             attack_rate = zeros(length(obj.individuals), length(obj.individuals(1).a_k));

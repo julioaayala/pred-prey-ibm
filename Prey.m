@@ -1,10 +1,5 @@
 classdef Prey < Individual
     methods
-        function fi_alpha = calc_fitness_alpha(obj, resources, pred_attack, bmax)
-            % Model A
-            a_k = obj.a_k(obj.habitat,:);
-            fi_alpha = sum(a_k.*[resources.Rk_eq]) - bmax * sum(pred_attack);
-        end
         function aik = consumption(obj, resources, habitats)
             % a/K -> max attack rate per resource density unit
             % a consumer i specialized on resource k has a_i = k
@@ -18,6 +13,11 @@ classdef Prey < Individual
                     end
                 end
             end
+        end
+        function fi_alpha = calc_fitness_alpha(obj, resources, pred_attack, bmax)
+            % Model A
+            a_k = obj.a_k(obj.habitat,:);
+            fi_alpha = sum(a_k.*[resources.Rk_eq]) - bmax * sum(pred_attack);
         end
     end
 end

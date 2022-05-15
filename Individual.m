@@ -17,7 +17,7 @@ classdef Individual < matlab.mixin.Copyable
         fitness % fitness value of individual
         % Genotype
         alpha_gene % Genotype for alpha trait
-        beta_gene % Genotype for alpha trait
+        beta_gene % Genotype for beta trait
         dis_gene % Genotype for display trait
         pref_gene % Genotype for preference trait
         p_mut % P of mutation
@@ -103,6 +103,7 @@ classdef Individual < matlab.mixin.Copyable
                 habitat = obj.habitat - 1;
             end
         end
+        % Unused. TODO: Delete and test
         function subpop = getsubpopalpha(obj, trait)
             subpop = Individual.empty;
             for i=1:length(obj)

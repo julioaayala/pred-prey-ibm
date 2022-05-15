@@ -1,4 +1,5 @@
 function main_pred_prey(varargin)
+
     %Parameters
     t_end = 10000;
     F = 2; % Fecundity rate
@@ -21,6 +22,7 @@ function main_pred_prey(varargin)
     c_ss_pred = 0;
     c_ss_prey = 0;
     is_sexual = 0; % Sexual/asexual reproduction
+    
 
     % Number of loci per trait
     loci_prey.alpha = 16;
@@ -33,8 +35,9 @@ function main_pred_prey(varargin)
     loci_pred.dis = 8;
     loci_pred.pref = 8;
 
+    % Parameters from cli
     if ~isempty(varargin)
-        if length(varargin)==5
+        if length(varargin)==5 % Only prey
             num_populations = 1;
             sigma_alpha = varargin{1};
             morphs = varargin{2};
@@ -57,11 +60,14 @@ function main_pred_prey(varargin)
     end
 
 
-    sigma_beta = 0.5; % Habitat niche width
-    num_resources = 3;
-    num_habitats = 1;
+    sigma_beta = 0.5; % Habitat niche width - Fixed 
+    num_resources = 3; % Number of resources - Fixed
+    num_habitats = 1; % Habitats - Fixed
     
-    
+    % Initial variables, for script reproducibility and control
+    timestamp = datestr(datetime('now'), 'yymmddHHMMSS'); % Timestamp, used for file naming
+    timestamp_day = str2num(extractAfter(timestamp,4)); % Extract day, hour, minute and second as seed
+    rng(timestamp_day);
 
     % Initialize resources and populations
     % Resources
@@ -151,9 +157,9 @@ function main_pred_prey(varargin)
     if num_populations==2 % When there is only prey
         outfile = strcat('Results/pred_prey_sigmaalpha_',num2str(sigma_alpha), '_pmutprey_',num2str(p_mut_prey), ...
         '_sigmagamma_',num2str(sigma_gamma),'_attack_',num2str(a_0P), ...
-        '_g_',num2str(g),'_pmutpred_',num2str(p_mut_pred),'_caprey_',num2str(c_a_prey),'_capred_',num2str(c_a_pred),'_morphsinit_',num2str(morphs),'_sexual_',num2str(is_sexual),'_',datestr(datetime('now'), 'yymmddHHMMSS'),'.csv');
+        '_g_',num2str(g),'_pmutpred_',num2str(p_mut_pred),'_caprey_',num2str(c_a_prey),'_capred_',num2str(c_a_pred),'_morphsinit_',num2str(morphs),'_sexual_',num2str(is_sexual),'_',timestamp,'.csv');
     else
-        outfile = strcat('Results/prey_sigmaalpha_',num2str(sigma_alpha), '_pmutprey_',num2str(p_mut_prey),'_caprey_',num2str(c_a_prey),'_morphsinit_',num2str(morphs),'_sexual_',num2str(is_sexual),'_', datestr(datetime('now'), 'yymmddHHMMSS'),'.csv');
+        outfile = strcat('Results/prey_sigmaalpha_',num2str(sigma_alpha), '_pmutprey_',num2str(p_mut_prey),'_caprey_',num2str(c_a_prey),'_morphsinit_',num2str(morphs),'_sexual_',num2str(is_sexual),'_', timestamp,'.csv');
     end
     outfile_traits = fopen(outfile, 'w');
 
@@ -227,7 +233,7 @@ function main_pred_prey(varargin)
           for i = 1:length(population(p).individuals)
               %% Mate, reproduce and mutate, or just clone and mutate for asexual organisms
               
-              % TODO: Modify
+              % OBS: Modify for sexual prey
               if population(p).type=="prey"
                 next_gen = reproduce(i,population(p), F, 0);
               else
