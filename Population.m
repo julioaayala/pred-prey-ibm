@@ -1,3 +1,21 @@
+%------------------------------------------------------------
+% Julio Ayala
+% ju7141ay-s@student.lu.se
+% December 2021
+% Description: Population class to encapsulate individuals and summarize
+% their attributes
+% Usage:
+% Create population objects from a script with
+%     Population(type, alpha, beta, a_0, habitat, sigma_alpha, sigma_beta, c_a, c_ss, n, p_mut, loci)
+% Where:
+%     type = "pred" or "prey" for predator and prey respectively
+%     n = number of individuals
+%     alpha = scalar or vector. When it's a vector, it creates n
+%             individuals with different alpha values.
+%     The remaining parameters correspond to those of an "Individual"
+%     object type.
+%------------------------------------------------------------
+
 classdef Population
     properties
         individuals
@@ -7,7 +25,7 @@ classdef Population
         attack_rate
     end
     methods
-        % Constructor
+        %% Constructor
         function obj = Population(type, alpha, beta, a_0, habitat, sigma_alpha, sigma_beta, c_a, c_ss, n, p_mut, loci)
             if nargin==0
                 obj.individuals = Individual.empty(1,0);
@@ -18,7 +36,7 @@ classdef Population
                 elseif type=="prey"
                     obj.individuals = Prey.empty(n*length(alpha),0);
                 end
-                %% Polimorphic initial population
+                % Polimorphic initial population
                 if length(alpha)>1
                     for a=1:length(alpha)
                         for i=1:n
@@ -29,7 +47,7 @@ classdef Population
                             end
                         end
                     end
-                %% Monomorphic initical population
+                % Monomorphic initical population
                 else
                     for i=1:n
                         if type=="pred"
@@ -41,12 +59,14 @@ classdef Population
                 end
             end
         end
-        % Get the frequency of a habitat in populations.
+
+        %% Function to get the frequency of a habitat in populations.
         function pop_size_habitat = get_popsize(obj, habitat)
             habs = [obj.individuals.habitat];
             pop_size_habitat = sum(habs(:)==habitat);
         end
-        % Get the frequency of a trait in populations.
+
+        %% Funciton to get the frequency of a trait in populations.
         function abundances = get_abundances(obj, trait)
             pop = [obj.individuals];
             hab_list = [pop.habitat];
@@ -62,15 +82,16 @@ classdef Population
                 end
             end
         end
-        % Get the total attack rate of the population
+
+        %% Function to get the total attack rate of the population
         function sum_ak = sum_ak(obj)
             prey_pop = [obj.individuals];
             cellarr = {prey_pop.a_k};
             a_k_matrix = cat(3,cellarr{:});
             sum_ak = sum(a_k_matrix,3);
         end
-        % Function to update the trait frequency attribute of the
-        % population
+
+        %% Function to update the trait frequency attribute of the population
         function trait_freq = update_trait_freq(obj)
             alpha = [obj.individuals.alpha];
             unique_vals = unique(alpha);
@@ -79,8 +100,8 @@ classdef Population
                 trait_freq(unique_vals(i)) = length(find(alpha==unique_vals(i)));
             end
         end
-        % Function to update the fitness attribute of the
-        % population
+
+        %% Function to update the fitness attribute of the population
         function trait_fit = update_fitness_values(obj)
             alpha = [obj.individuals.alpha];
             unique_vals = unique(alpha);
@@ -90,8 +111,8 @@ classdef Population
                 trait_fit(unique_vals(i)) = mean([subpop.fitness]);
             end
         end
-        % Function to update the attack rate attribute of the
-        % population
+
+        %% Function to update the attack rate attribute of the population
         function attack_rate = update_attack_rate(obj)
           if ~isempty(obj.individuals)
             attack_rate = zeros(length(obj.individuals), length(obj.individuals(1).a_k));

@@ -1,5 +1,14 @@
+%------------------------------------------------------------
+% Julio Ayala
+% ju7141ay-s@student.lu.se
+% December 2021
+% Description: Prey class to model prey individuals, inherits from Individual
+% Contains functions for resource consumption and fitness
+%------------------------------------------------------------
+
 classdef Prey < Individual
     methods
+        %% Function to calculate resource consumption (i.e. attack rate)
         function aik = consumption(obj, resources, habitats)
             % a/K -> max attack rate per resource density unit
             % a consumer i specialized on resource k has a_i = k
@@ -14,6 +23,8 @@ classdef Prey < Individual
                 end
             end
         end
+
+        %% Function to calculate fitness in sympatry
         function fi_alpha = calc_fitness_alpha(obj, resources, pred_attack, bmax)
             % Model A
             a_k = obj.a_k(obj.habitat,:);

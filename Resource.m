@@ -1,9 +1,23 @@
+%------------------------------------------------------------
+% Julio Ayala
+% ju7141ay-s@student.lu.se
+% October 2021
+% Description: Resource class for ecological interactions
+% Usage:
+% Create resource objects from a script with
+%     Resource(trait, habitat, K)
+% Where:
+%     trait = Ecological trait value
+%     habitat = Habitat trait value
+%     K = System size
+%------------------------------------------------------------
+
 classdef Resource
     properties
-        trait % k Trait [1..3]
-        habitat % Hab #
-        K % Carrying capacity
-        Rk_eq % Eq. resouce abundance 
+        trait       % k Trait [1..3]
+        habitat     % Habitat number #
+        K           % Carrying capacity
+        Rk_eq       % Equilibrium resouce abundance 
     end
     methods
         % Constructor
@@ -18,7 +32,8 @@ classdef Resource
                 obj.K = K;
             end
         end
-        % Function for equilibrium resource abundance
+        % Function to calculate equilibrium resource abundance from
+        % consumer attack
         function Rk_eq = eq_abundance(obj, F, a_ik) 
             Rk_eq = obj.K / (1+sum(a_ik./F));
         end

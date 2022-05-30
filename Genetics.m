@@ -1,3 +1,19 @@
+%------------------------------------------------------------
+% Julio Ayala
+% ju7141ay-s@student.lu.se
+% December 2021
+% Description: Genetics class that codes for one diallelic continuous trait
+% Usage:
+% Create gene objects with
+%     Genetics(type, loci, value, minval, maxval, p_mut)
+% Where:
+%     type = "diallelic" (Only option available now)
+%     loci = Number of loci
+%     value = Phenotype trait value
+%     minval, maxval = Range of values for the trait
+%     p_mut = Mutation rate
+%------------------------------------------------------------
+
 classdef Genetics < matlab.mixin.Copyable
     properties
         type    % Diallelic, for now
@@ -7,8 +23,9 @@ classdef Genetics < matlab.mixin.Copyable
         maxval
         p_mut
     end
+
     methods
-        % Constructor
+        %% Constructor
         function obj = Genetics(type, loci, value, minval, maxval, p_mut)
             if nargin==0
                 obj.type = "Diallelic";
@@ -22,6 +39,7 @@ classdef Genetics < matlab.mixin.Copyable
             end
             obj.genotype = phen_to_gen(obj, value);
         end
+        
         %% Phenotype to genotype function, to be used only for initialization
         function genotype = phen_to_gen(obj, value)
             if obj.type == "Diallelic"
@@ -42,6 +60,7 @@ classdef Genetics < matlab.mixin.Copyable
                 end
             end
         end
+        
         %% Genotype to phenotype function
         function phenotype = gen_to_phen(obj)
             % Calculate phenotype based on 
@@ -49,7 +68,8 @@ classdef Genetics < matlab.mixin.Copyable
             % Normalizing 
             phenotype = obj.minval + (obj.maxval-obj.minval) * (rescaled-(obj.loci*-1))/(2*obj.loci);
         end
-        %% Mutate
+        
+        %% Mutation function 
         function obj = mutate(obj)
             % Function to mutate on each loci based on p_mut
             rangen = rand(obj.loci,1);
@@ -59,7 +79,8 @@ classdef Genetics < matlab.mixin.Copyable
                 obj.genotype(mutations(i),j) = abs(obj.genotype(mutations(i),j)-1); % Mutate locus
             end
         end
-        %% Recombination
+        
+        %% Recombination function
         function obj = recombinate(obj, obj2)
             recombined = zeros([obj.loci,2]);
             % Choose 1 allele from each parent

@@ -1,3 +1,25 @@
+%------------------------------------------------------------
+% Julio Ayala
+% ju7141ay-s@student.lu.se
+% October 2021
+% Description: Base class that defines individuals to be part of a
+% population. Derives "Predator" and "Prey" objects.
+% Usage:
+% Create "Individual" objects with
+%     Individual(alpha, beta, a_0, habitat, sigma_alpha, sigma_beta, c_a, c_ss, loci, p_mut)
+% Where:
+%     alpha = alpha trait value
+%     beta  = beta trait value
+%     a_0 = base attack rate
+%     habitat = Number of habitat
+%     sigma_alpha = alpha niche width 
+%     sigma_beta  = beta niche width 
+%     c_a = Alpha trait choosiness parameter
+%     c_ss = Sexual trait choosiness parameter
+%     loci = Structure with alpha, beta, display and preference genes number of loci
+%     p_mut = Mutation rate
+%------------------------------------------------------------
+
 classdef Individual < matlab.mixin.Copyable
     properties
         % Traits
@@ -23,7 +45,7 @@ classdef Individual < matlab.mixin.Copyable
         p_mut % P of mutation
     end
     methods
-        % Constructor
+        %% Constructor
         function obj = Individual(alpha, beta, a_0, habitat, sigma_alpha, sigma_beta, c_a, c_ss, loci, p_mut)
             
             if nargin==0
@@ -51,7 +73,7 @@ classdef Individual < matlab.mixin.Copyable
                 obj.c_ss = c_ss;
                 obj.p_mut = p_mut;
             end
-            %% Genotype
+            %%% Genotype
             % Ecological traits
             obj.alpha_gene = Genetics('Diallelic', loci.alpha, alpha, 0, 4, p_mut);
             obj.beta_gene = Genetics('Diallelic', loci.beta, beta, 0, 4, p_mut);
@@ -59,7 +81,7 @@ classdef Individual < matlab.mixin.Copyable
             obj.dis_gene = Genetics('Diallelic', loci.dis, obj.dis, -2, 2, p_mut);
             obj.pref_gene = Genetics('Diallelic', loci.pref, obj.pref, -2, 2, p_mut);
         end
-        % attack rate function
+        %% attack rate function
         function aik = consumption(obj, resources, habitats)
             % a/K -> max attack rate per resource density unit
             % a consumer i specialized on resource k has a_i = k
@@ -74,26 +96,27 @@ classdef Individual < matlab.mixin.Copyable
                 end
             end
         end
-        % Fitness function (alpha)
+        %% Fitness function (alpha/sympatric)
         function fi_alpha = calc_fitness_alpha(obj, resources)
             % Model A
             fi_alpha = sum(obj.a_k.*[resources.Rk_eq]);
         end
-        % Fitness function (beta)
+        %% Fitness function (beta/allopatric)
         function fi_beta = calc_fitness_beta(obj, resources, nh, F)
             % Model B
             fi_beta = exp(-((obj.beta - obj.habitat)^2)/(2*obj.sigma_beta^2)) * obj.a_0/(1+ ((nh*obj.a_0)/(resources.K.*F)));
         end
-        % Fitness function (Full model)
+        %% Fitness function (Full model)
         function fi = calc_fitness_full(obj, resources)
             rk_eq = zeros(size(resources));
             for i=1:height(resources)
                 rk_eq(i,:) = [resources(i,:).Rk_eq];
             end
-            %% TODO Should fitness be based on curr hab only?
+            %% To fix: Fitness should be based on current habitat
             fi = exp(-((obj.beta - obj.habitat)^2)/(2*obj.sigma_beta^2)) * sum(sum(obj.a_k.*rk_eq));
         end
-        % Dispersal function
+
+        %% Dispersal function
         function habitat = disperse(obj, max_hab)
             if obj.habitat==1
                 habitat = 2;
@@ -103,14 +126,6 @@ classdef Individual < matlab.mixin.Copyable
                 habitat = obj.habitat - 1;
             end
         end
-        % Unused. TODO: Delete and test
-        function subpop = getsubpopalpha(obj, trait)
-            subpop = Individual.empty;
-            for i=1:length(obj)
-                if obj(i).alpha == trait
-                    subpop(length(subpop)+1) = obj(i);
-                end
-            end
-        end
+        
     end
 end

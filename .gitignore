@@ -1,3 +1,7 @@
 *.err
 *.out
 *.asv
+.Rproj.user
+Bash_scripts/Prey/*
+Bash_scripts/Pred_prey_1morph/*
+Bash_scripts/Pred_prey_1morph_evol/*

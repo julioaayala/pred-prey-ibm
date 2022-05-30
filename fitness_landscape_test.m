@@ -1,50 +1,68 @@
 function fitness_landscape_test(varargin)
-    alpha = 1:0.05:3;
-    sigma_alpha = 0.25:0.05:0.50;
-    resources = [Resource(1,1,500), Resource(2,1,500), Resource(3,1,500)];
-    inds = Prey.empty;
-    loci.alpha = 8;
-    loci.beta = 8;
-    loci.dis = 8;
-    loci.pref = 8;
-    
-    for j=1:length(sigma_alpha)
-        for i=1:length(alpha)
-            if ismember([2.0], alpha)
-                for k=1:1
-                    inds(length(inds)+1) = Prey(alpha(i),1,2,1,sigma_alpha(j),1, 1,1,loci,0);
-                end
-            else
-                inds(length(inds)+1) = Prey(alpha(i),1,2,1,sigma_alpha(j),1, 1,1,loci,0);
-            end
+    alpha = 1:3;
+    gamma = 1.5:0.0625:2.50;
+    sigma_gamma = 0.3:0.1:0.6;
+    resources = [Resource(1,1,400), Resource(2,1,400), Resource(3,1,400)];
+    loci_prey.alpha = 16;
+    loci_prey.beta = 8;
+    loci_prey.dis = 8;
+    loci_prey.pref = 8;
+
+    loci_pred.alpha = 32;
+    loci_pred.beta = 8;
+    loci_pred.dis = 8;
+    loci_pred.pref = 8;
+
+    preypop = Population("prey", 2, 1, 2, 1, 0.45, 1, 1, 0, length(alpha)*400, 1e-5, loci_prey);
+    predpop = Population("pred", 2, 1, 0.005, 1, 0.2, 1, 1, 1, length(gamma)*length(sigma_gamma), 1e-4, loci_pred);
+
+    for i=1:length(alpha)
+      for j=1:100  
+        preypop.individuals(((i-1)*100)+j).alpha = alpha(i);
+      end
+    end
+
+    for i=1:length(gamma)
+        for j=1:length(sigma_gamma)
+            predpop.individuals(((i-1)*length(sigma_gamma))+j).g = 0.65;
+            predpop.individuals(((i-1)*length(sigma_gamma))+j).alpha = gamma(i);
+            predpop.individuals(((i-1)*length(sigma_gamma))+j).sigma_alpha = sigma_gamma(j);
         end
     end
-    
-    for i=1:length(inds)
-        inds(i).a_k = inds(i).consumption(resources,1);
+
+    % Prey consumption
+    for i=1:length(preypop.individuals)
+        preypop.individuals(i).a_k = preypop.individuals(i).consumption(resources,1);
     end
-    
-    cellarr = {inds.a_k};
+
+    preyind = [preypop.individuals];
+    cellarr = {preyind.a_k};
     a_k_matrix = cat(3,cellarr{:});
-    for i=1:length(resources)
-        resources(i).Rk_eq = resources(i).eq_abundance(3, a_k_matrix(:,i,:));
+    % Calculate equilibrium resource abundance
+    for j=1:3
+        % Calc Rk_eq for the kth resource
+        resources(j).Rk_eq = resources(j).eq_abundance(2, a_k_matrix(1,j,:));
+    end
+
+    % Pred consumption
+    for i=1:length(predpop.individuals)
+        predpop.individuals(i).a_k = predpop.individuals(i).consumption([preypop.individuals.alpha], 1);
+        predpop.individuals(i).fitness = predpop.individuals(i).calc_fitness_alpha(1);
     end
     
-    for i=1:length(inds)
-        inds(i).fitness = inds(i).calc_fitness_alpha(resources,0,0);
+    predpop.attack_rate = predpop.update_attack_rate();
+    pred_attack = [predpop.attack_rate];
+    for i=1:length(preypop.individuals)
+        predatt = pred_attack(:,i);
+        preypop.individuals(i).fitness = preypop.individuals(i).calc_fitness_alpha(resources,predatt,1);
     end
     
-    fit = zeros(1,1);
-    for j=1:length(sigma_alpha)
-        for i=1:length(alpha)
-            fit(i,j) = mean([inds([inds.alpha]==alpha(i) & [inds.sigma_alpha]==sigma_alpha(j)).fitness]);
-        end
-    end
-    
-    fit = fit/2;
-    %fit2 = reshape(fit, [length(alpha), length(sigma_alpha)]);
-    surf(sigma_alpha, alpha, fit);
-    xlabel('\sigma_\alpha');
-    ylabel('\alpha');
+    sigmapred = [predpop.individuals.alpha];
+    fitpred = [predpop.individuals.fitness]/2;
+    fit = reshape(fitpred, [length(sigma_gamma), length(gamma)]);
+    surf(gamma,sigma_gamma, fit);
+    ylabel('\sigma_\gamma');
+    xlabel('\gamma');
     zlabel('fitness');
+
 end
