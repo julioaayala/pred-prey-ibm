@@ -10,6 +10,13 @@
 #SBATCH -e Logs/pred_prey_alpha_pmutprey_gamma_aP_efficiency_pmutpred_morphsinit_c_a_prey_c_a_pred_is_sexual.err
 #SBATCH -D /home/ayalaj/Pred_prey_dynamics/pred-prey-ibm
 
+## --------------------------
+## Julio Ayala
+## February 2022
+## pred_prey.sh
+## Template for execution of predator_prey dynamics in Matlab, with a template from SNIC-LUNARC
+## --------------------------
+
 module load matlab
 
 cd /home/ayalaj/Pred_prey_dynamics/pred-prey-ibm

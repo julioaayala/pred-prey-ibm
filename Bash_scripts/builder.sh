@@ -1,3 +1,10 @@
+## --------------------------
+## Julio Ayala
+## February 2022
+## builder.sh
+## Set of bash commands to build runnable scripts based on parameters on the Params/ folder
+## --------------------------
+
 ## Prey only
 ### Create bash scripts
 for alpha in $(cat Params/sigma_alpha.txt);

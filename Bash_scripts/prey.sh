@@ -9,6 +9,13 @@
 #SBATCH -e Prey_alpha_pmutprey_morphsinit_is_sexual_c_a_prey.out
 #SBATCH -D /home/ayalaj/Pred_prey_dynamics/pred-prey-ibm
 
+## --------------------------
+## Julio Ayala
+## February 2022
+## prey.sh
+## Template for execution of prey dynamics in Matlab, with a template from SNIC-LUNARC
+## --------------------------
+
 module load matlab
 
 cd /home/ayalaj/Pred_prey_dynamics/pred-prey-ibm
